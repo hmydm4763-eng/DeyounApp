@@ -17,6 +17,7 @@ public class Db extends SQLiteOpenHelper {
  public Cursor customer(long id){return getReadableDatabase().rawQuery("SELECT * FROM customers WHERE id=?",new String[]{""+id});}
  public Cursor items(long cid){return getReadableDatabase().rawQuery("SELECT i.*, COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.item_id=i.id),0) paid FROM items i WHERE customer_id=? ORDER BY id DESC",new String[]{""+cid});}
  public Cursor item(long id){return getReadableDatabase().rawQuery("SELECT * FROM items WHERE id=?",new String[]{""+id});}
+ public Cursor itemsAll(){return getReadableDatabase().rawQuery("SELECT c.name AS customer_name,i.name AS item_name,i.installment-COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.item_id=i.id),0) AS remaining FROM items i JOIN customers c ON c.id=i.customer_id ORDER BY c.name,i.id DESC",null);}
  public double total(String col){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM("+col+"),0) FROM items",null);c.moveToFirst();double x=c.getDouble(0);c.close();return x;}
  public double profit(){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM(installment-cash),0) FROM items",null);c.moveToFirst();double x=c.getDouble(0);c.close();return x;}
  public double paid(){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM(amount),0) FROM payments",null);c.moveToFirst();double x=c.getDouble(0);c.close();return x;}
