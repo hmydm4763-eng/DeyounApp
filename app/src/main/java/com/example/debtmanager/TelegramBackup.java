@@ -313,13 +313,22 @@ public final class TelegramBackup {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(new Date(t));
     }
 
-    public static String statusLine(Context c) {
-        if (!isConfigured(c)) return "☁  النسخ التلقائي غير مفعّل — اضغط هنا لتفعيله";
+    public static boolean hasError(Context c) {
+        return isConfigured(c) && !prefs(c).getString("last_error", "").isEmpty();
+    }
+
+    /** Short status text without symbols, for cards. */
+    public static String statusText(Context c) {
+        if (!isConfigured(c)) return "غير مفعّل — اضغط لتفعيله وحماية بياناتك";
         SharedPreferences p = prefs(c);
         String err = p.getString("last_error", "");
-        if (!err.isEmpty()) return "⚠  النسخ التلقائي: " + err + " — اضغط للتفاصيل";
+        if (!err.isEmpty()) return err + " — اضغط للتفاصيل";
         long t = p.getLong("last_ok", 0);
-        return "☁  النسخ التلقائي مفعّل" + (t > 0 ? "  •  آخر نسخة: " + fmtTime(t) : "");
+        return t > 0 ? "مفعّل • آخر نسخة: " + fmtTime(t) : "مفعّل • بانتظار إرسال أول نسخة";
+    }
+
+    public static String statusLine(Context c) {
+        return (hasError(c) ? "⚠  " : "☁  ") + statusText(c);
     }
 
     public static String statusDetail(Context c) {

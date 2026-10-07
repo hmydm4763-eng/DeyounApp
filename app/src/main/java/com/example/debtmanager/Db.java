@@ -22,4 +22,7 @@ public class Db extends SQLiteOpenHelper {
  public double total(String col){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM("+col+"),0) FROM items",null);c.moveToFirst();double x=c.getDouble(0);c.close();return x;}
  public double profit(){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM(installment-cash),0) FROM items",null);c.moveToFirst();double x=c.getDouble(0);c.close();return x;}
  public double paid(){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM(amount),0) FROM payments",null);c.moveToFirst();double x=c.getDouble(0);c.close();return x;}
+
+ public Cursor itemsJoined(){return getReadableDatabase().rawQuery("SELECT i.id AS id,i.customer_id AS customer_id,i.name AS name,i.cash AS cash,i.installment AS installment,i.term AS term,i.installment_amount AS each_amount,i.start_date AS start_date,c.name AS cname,c.phone AS cphone,COALESCE((SELECT SUM(p.amount) FROM payments p WHERE p.item_id=i.id),0) AS paid FROM items i JOIN customers c ON c.id=i.customer_id ORDER BY c.name,i.id",null);}
+ public double receivedOn(String date){Cursor c=getReadableDatabase().rawQuery("SELECT COALESCE(SUM(amount),0) FROM payments WHERE date=?",new String[]{date});double x=0;if(c.moveToFirst())x=c.getDouble(0);c.close();return x;}
 }

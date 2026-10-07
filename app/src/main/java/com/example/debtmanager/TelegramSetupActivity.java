@@ -1,6 +1,7 @@
 package com.example.debtmanager;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -10,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -26,10 +26,12 @@ public class TelegramSetupActivity extends Activity {
     @Override
     public void onCreate(Bundle b) {
         super.onCreate(b);
-        getWindow().setStatusBarColor(Ui.NAVY);
         ScrollView sv = new ScrollView(this);
-        root = Ui.root(this);
+        sv.setBackgroundColor(Ui.BG);
+        root = Ui.col(this);
+        root.setPadding(dp(16), dp(12), dp(16), dp(28));
         sv.addView(root);
+        Ui.window(this, sv);
         setContentView(sv);
         render();
     }
@@ -58,18 +60,8 @@ public class TelegramSetupActivity extends Activity {
     }
 
     void header() {
-        LinearLayout top = Ui.row(this);
-        TextView back = Ui.iconButton(this, "‹");
-        back.setTextSize(34);
-        back.setOnClickListener(v -> finish());
-        top.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
-        LinearLayout tt = new LinearLayout(this);
-        tt.setOrientation(LinearLayout.VERTICAL);
-        tt.setGravity(Gravity.RIGHT);
-        tt.addView(Ui.title(this, "النسخ التلقائي"));
-        tt.addView(Ui.subtitle(this, "حفظ بياناتك على تيليجرام"));
-        top.addView(tt, new LinearLayout.LayoutParams(0, dp(58), 1));
-        root.addView(top);
+        root.addView(Ui.header(this, "النسخ التلقائي", "حفظ بياناتك على تيليجرام",
+                Ui.circleButton(this, R.drawable.ic_arrow_forward, v -> finish()), null));
     }
 
     // ------------------------------------------------------------------ setup
@@ -78,7 +70,7 @@ public class TelegramSetupActivity extends Activity {
         root.addView(Ui.card(this, "سيرسل التطبيق نسخة من بياناتك تلقائياً إلى محادثتك الخاصة في تيليجرام بعد كل تعديل، فتبقى محفوظة حتى لو ضاع الهاتف.\nالإعداد يتم مرة واحدة فقط (4 خطوات)."));
 
         root.addView(Ui.card(this, "① افتح BotFather في تيليجرام واضغط Start، ثم أرسل الأمر:\n/newbot\nواختر أي اسم للبوت، ثم اسم مستخدم ينتهي بكلمة bot. سيرسل لك BotFather رسالة فيها رمز طويل (Token)، انسخه."));
-        Button open = Ui.btn(this, "فتح BotFather");
+        View open = Ui.button(this, "فتح BotFather", R.drawable.ic_send, Ui.INDIGO, Ui.WHITE, Color.TRANSPARENT);
         open.setOnClickListener(v -> openLink("https://t.me/BotFather"));
         add(open, dp(48));
 
@@ -87,18 +79,17 @@ public class TelegramSetupActivity extends Activity {
         tokenEdit.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         tokenEdit.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         add(tokenEdit, dp(52));
-        Button paste = Ui.outlineBtn(this, "📋  لصق من الحافظة", Ui.BLUE);
+        View paste = Ui.button(this, "لصق من الحافظة", R.drawable.ic_receipt, Ui.WHITE, Ui.INDIGO, Ui.BORDER);
         paste.setOnClickListener(v -> pasteToken());
         add(paste, dp(46));
 
         root.addView(Ui.card(this, "③ اضغط الزر التالي لفتح البوت الذي أنشأته، ثم اضغط Start (أو أرسل له أي رسالة مثل: hi)."));
-        Button bot = Ui.btn(this, "فتح البوت الخاص بي");
+        View bot = Ui.button(this, "فتح البوت الخاص بي", R.drawable.ic_send, Ui.INDIGO, Ui.WHITE, Color.TRANSPARENT);
         bot.setOnClickListener(v -> openMyBot());
         add(bot, dp(48));
 
         root.addView(Ui.card(this, "④ بعد إرسال الرسالة للبوت ارجع إلى هنا واضغط:"));
-        Button link = Ui.btn(this, "ربط واختبار");
-        link.setBackground(Ui.bg(Ui.GREEN, Ui.GREEN, 14));
+        View link = Ui.button(this, "ربط واختبار", R.drawable.ic_check_circle, Ui.GREEN, Ui.WHITE, Color.TRANSPARENT);
         link.setOnClickListener(v -> linkNow());
         add(link, dp(52));
 
@@ -226,13 +217,13 @@ public class TelegramSetupActivity extends Activity {
         status.setPadding(dp(4), dp(8), dp(4), dp(8));
         root.addView(status);
 
-        Button now = Ui.btn(this, "إرسال نسخة الآن");
+        View now = Ui.button(this, "إرسال نسخة الآن", R.drawable.ic_cloud, Ui.INDIGO, Ui.WHITE, Color.TRANSPARENT);
         now.setOnClickListener(v -> sendNow());
         add(now, dp(50));
 
         root.addView(Ui.card(this, "كيف أستعيد بياناتي؟\n1) افتح محادثة البوت في تيليجرام ونزّل آخر ملف (.db).\n2) في التطبيق: النسخ الاحتياطي ← استعادة نسخة احتياطية، ثم اختر الملف الذي نزّلته."));
 
-        Button off = Ui.outlineBtn(this, "إيقاف النسخ التلقائي", Ui.RED);
+        View off = Ui.button(this, "إيقاف النسخ التلقائي", R.drawable.ic_close, Ui.soft(Ui.RED), Ui.RED, Color.TRANSPARENT);
         off.setOnClickListener(v -> confirmOff());
         add(off, dp(48));
     }
