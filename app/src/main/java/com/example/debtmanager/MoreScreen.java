@@ -34,7 +34,7 @@ final class MoreScreen extends Screen {
         root.addView(Ui.section(a, "المساعدة", "", null, null));
         root.addView(tile(R.drawable.ic_book, Ui.GREEN, "دليل الاستخدام", "شرح مفصل لكل أقسام التطبيق",
                 v -> a.startActivity(new Intent(a, GuideActivity.class))));
-        root.addView(tile(R.drawable.ic_info, Ui.MUTED, "عن التطبيق", "الإصدار 1.5", v -> a.showAbout()));
+        root.addView(tile(R.drawable.ic_info, Ui.MUTED, "عن التطبيق", "الإصدار 1.5.1", v -> a.showAbout()));
     }
 
     private View tile(int icon, int color, String title, String sub, View.OnClickListener click) {

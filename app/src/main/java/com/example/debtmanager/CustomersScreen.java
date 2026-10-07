@@ -103,7 +103,11 @@ final class CustomersScreen extends Screen {
             if (filter == 2 && !(k.state == Data.C_ACTIVE || k.state == Data.C_TODAY || k.state == Data.C_OVERDUE)) continue;
             if (filter == 3 && k.state != Data.C_PAID) continue;
             if (!q.isEmpty() && !k.name.toLowerCase().contains(q) && !k.phone.contains(q)) continue;
-            list.addView(card(k));
+            try {
+                list.addView(card(k));
+            } catch (Exception e) {
+                list.addView(fallbackCard(k));
+            }
             shown++;
         }
         count.setText(shown + " من " + a.snap.customers.size() + " عميل");
@@ -113,6 +117,16 @@ final class CustomersScreen extends Screen {
                     none ? "لا يوجد عملاء بعد" : "لا توجد نتائج",
                     none ? "اضغط «إضافة عميل» لتسجيل أول عميل." : "جرّب تغيير البحث أو التصفية."));
         }
+    }
+
+    /** Minimal card used if a record has unexpected data, so one bad record never crashes the list. */
+    private View fallbackCard(final Data.Cust k) {
+        LinearLayout b = Ui.box(a);
+        b.setClickable(true);
+        b.setOnClickListener(v -> a.openCustomer(k.id));
+        b.addView(Ui.bold(Ui.txt(a, k.name, 16, Ui.TEXT)));
+        b.addView(Ui.txt(a, "المتبقي: " + Ui.money(k.remaining), 12, Ui.MUTED));
+        return b;
     }
 
     private View infoRow(int icon, String text, int color) {
@@ -175,16 +189,20 @@ final class CustomersScreen extends Screen {
             b.addView(infoRow(R.drawable.ic_check_circle, "جميع الأقساط مسددة", Ui.GREEN));
             if (k.lastDue != null) b.addView(infoRow(R.drawable.ic_calendar, "آخر قسط: " + k.lastDue.due, Ui.MUTED));
         } else {
-            String first = "أول قسط مستحق: " + k.nextDue.due;
-            int fc = Ui.MUTED;
-            if (k.state == Data.C_OVERDUE) {
-                first += "  (متأخر " + Dates.daysWord(k.overdueDays) + ")";
-                fc = Ui.RED;
-            } else if (k.state == Data.C_TODAY) {
-                first += "  (اليوم)";
-                fc = Ui.stateColor(Sched.TODAY);
+            if (k.nextDue != null) {
+                String first = "أول قسط مستحق: " + k.nextDue.due;
+                int fc = Ui.MUTED;
+                if (k.state == Data.C_OVERDUE) {
+                    first += "  (متأخر " + Dates.daysWord(k.overdueDays) + ")";
+                    fc = Ui.RED;
+                } else if (k.state == Data.C_TODAY) {
+                    first += "  (اليوم)";
+                    fc = Ui.stateColor(Sched.TODAY);
+                }
+                b.addView(infoRow(R.drawable.ic_calendar, first, fc));
+            } else {
+                b.addView(infoRow(R.drawable.ic_info, "لا يوجد جدول أقساط — حدّد عدد الأقساط من تعديل السلعة", Ui.MUTED));
             }
-            b.addView(infoRow(R.drawable.ic_calendar, first, fc));
             if (k.lastDue != null) b.addView(infoRow(R.drawable.ic_schedule, "آخر قسط: " + k.lastDue.due, Ui.MUTED));
             int st = k.state == Data.C_OVERDUE ? Sched.OVERDUE : k.state == Data.C_TODAY ? Sched.TODAY : Sched.UPCOMING;
             TextView chip = Ui.chip(a, k.state == Data.C_OVERDUE ? "متأخر" : k.state == Data.C_TODAY ? "مستحق اليوم" : "قيد السداد",

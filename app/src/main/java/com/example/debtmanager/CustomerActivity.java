@@ -72,7 +72,16 @@ public class CustomerActivity extends Activity {
             root.addView(Ui.empty(this, R.drawable.ic_cart, Ui.INDIGO, "لا توجد سلع لهذا العميل",
                     "اضغط «إضافة سلعة جديدة» لتسجيل أول عملية تقسيط."));
         }
-        for (Sched.Item it : c.items) root.addView(itemCard(it, again));
+        for (Sched.Item it : c.items) {
+            try {
+                root.addView(itemCard(it, again));
+            } catch (Exception e) {
+                LinearLayout fb = Ui.box(this);
+                fb.addView(Ui.bold(Ui.txt(this, it.name, 16, Ui.TEXT)));
+                fb.addView(Ui.txt(this, "المتبقي: " + Ui.money(it.remaining()), 12, Ui.MUTED));
+                root.addView(fb);
+            }
+        }
     }
 
     // ------------------------------------------------------------ profile
@@ -144,7 +153,8 @@ public class CustomerActivity extends Activity {
         String line;
         if (c.items.isEmpty()) line = "لا توجد سلع مسجلة بعد";
         else if (c.state == Data.C_PAID) line = "جميع الأقساط مسددة";
-        else line = "أول قسط مستحق: " + c.nextDue.due + "   •   آخر قسط: " + c.lastDue.due;
+        else if (c.nextDue != null && c.lastDue != null) line = "أول قسط مستحق: " + c.nextDue.due + "   •   آخر قسط: " + c.lastDue.due;
+        else line = "لا يوجد جدول أقساط — حدّد عدد الأقساط من تعديل السلعة";
         TextView sum = Ui.txt(this, line, 12, Color.argb(230, 255, 255, 255));
         sum.setPadding(0, dp(10), 0, 0);
         p.addView(sum);

@@ -79,8 +79,9 @@ public final class Sched {
         double each = it.each > 0 ? it.each : it.total / it.term;
         String first = it.firstDue.isEmpty() ? Dates.today() : it.firstDue;
         double prevCum = 0;
-        for (int k = 1; k <= it.term; k++) {
+        for (int k = 1; k <= Math.min(it.term, 600); k++) {
             double cum = (k == it.term) ? it.total : Math.min(k * each, it.total);
+            if (k == 600) cum = it.total;
             double amt = cum - prevCum;
             if (amt <= 0.0001) break;
             Inst in = new Inst();

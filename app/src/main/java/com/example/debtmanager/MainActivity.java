@@ -58,14 +58,22 @@ public class MainActivity extends Activity {
         content.addView(screens[i].view(), new FrameLayout.LayoutParams(-1, -1));
         nav.select(i);
         nav.setBadge(TAB_ALERTS, snap.overdueCount + snap.todayCount);
-        screens[i].refresh();
+        safeRefresh(i);
+    }
+
+    private void safeRefresh(int i) {
+        try {
+            screens[i].refresh();
+        } catch (Exception e) {
+            Ui.toast(this, "تعذر عرض هذا القسم، تحقق من بيانات العملاء");
+        }
     }
 
     /** Reloads all data and redraws the current tab. */
     void reload() {
         snap = Data.load(db);
         nav.setBadge(TAB_ALERTS, snap.overdueCount + snap.todayCount);
-        screens[tab].refresh();
+        safeRefresh(tab);
     }
 
     @Override
@@ -127,7 +135,7 @@ public class MainActivity extends Activity {
 
     void showAbout() {
         new AlertDialog.Builder(this).setTitle("عن التطبيق")
-                .setMessage("تطبيق إدارة الديون والأقساط\nالإصدار 1.5\n\nيعمل بالكامل على هاتفك، وبياناتك محفوظة محلياً مع إمكانية النسخ الاحتياطي التلقائي عبر تيليجرام.")
+                .setMessage("تطبيق إدارة الديون والأقساط\nالإصدار 1.5.1\n\nيعمل بالكامل على هاتفك، وبياناتك محفوظة محلياً مع إمكانية النسخ الاحتياطي التلقائي عبر تيليجرام.")
                 .setPositiveButton("حسنًا", null).show();
     }
 
